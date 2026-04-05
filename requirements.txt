@@ -1,0 +1,7 @@
+Django>=4.2,<5.0
+python-chess>=1.999
+requests>=2.31
+reportlab>=4.4
+svglib>=1.6
+gunicorn>=23.0
+whitenoise>=6.9

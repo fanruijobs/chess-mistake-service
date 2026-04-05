@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load mistake_boards %}
+
+{% block title %}@{{ player.chesscom_username }} Puzzles | Chess Mistake Service{% endblock %}
+
+{% block content %}
+<section class="hero compact">
+    <p class="eyebrow">Training queue</p>
+    <h1>@{{ player.chesscom_username }}</h1>
+    <p class="lede">Turning points are archived by year and month so review stays organized as the puzzle history grows.</p>
+    <div class="actions">
+        {% if selected_year and selected_month %}
+        <a class="button" href="{% url 'mistakes:puzzle-archive-pdf' player.slug selected_year selected_month %}">Export PDF: Wrong Move Only</a>
+        <a class="button" href="{% url 'mistakes:puzzle-archive-pdf' player.slug selected_year selected_month %}?variant=with-best">Export PDF: Include Best Move</a>
+        {% else %}
+        <a class="button" href="{% url 'mistakes:puzzle-pdf' player.slug %}">Export PDF: Wrong Move Only</a>
+        <a class="button" href="{% url 'mistakes:puzzle-pdf' player.slug %}?variant=with-best">Export PDF: Include Best Move</a>
+        {% endif %}
+    </div>
+    {% if archive_links %}
+    <div class="archive-chip-list">
+        <a class="archive-chip" href="{% url 'mistakes:puzzle-list' player.slug %}">All</a>
+        {% for archive in archive_links %}
+        <a class="archive-chip{% if selected_year == archive.archive_year and selected_month == archive.archive_month %} active{% endif %}" href="{% url 'mistakes:puzzle-archive' player.slug archive.archive_year archive.archive_month %}">
+            {{ archive.archive_year }}-{{ archive.archive_month|stringformat:"02d" }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+{% for archive in archive_groups %}
+<section class="archive-section">
+    <div class="archive-header">
+        <p class="eyebrow">Archive</p>
+        <h2>{{ archive.year }}-{{ archive.month|stringformat:"02d" }}</h2>
+    </div>
+    <section class="card-grid">
+        {% for puzzle in archive.puzzles %}
+        <article class="card">
+            <p class="meta">{{ puzzle.game.played_at|date:"Y-m-d" }} · {{ puzzle.get_label_display }}</p>
+            <a class="position-link" href="{{ puzzle.get_absolute_url }}">
+                <div class="fen-board fen-board-mini">{% board_svg puzzle 220 %}</div>
+            </a>
+            <p>Played {{ puzzle.played_move }} instead of {{ puzzle.best_move }}.</p>
+            <p>Drop: {{ puzzle.drop_cp }} cp</p>
+        </article>
+        {% endfor %}
+    </section>
+</section>
+{% empty %}
+<section class="card-grid">
+    <article class="card">
+        <h2>No puzzles yet</h2>
+        <p>This player has no analyzed turning points yet.</p>
+    </article>
+</section>
+{% endfor %}
+{% endblock %}

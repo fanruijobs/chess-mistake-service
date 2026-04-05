@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load mistake_boards %}
+
+{% block title %}Puzzle {{ puzzle.id }} | Chess Mistake Service{% endblock %}
+
+{% block content %}
+<section class="hero compact">
+    <p class="eyebrow">{{ puzzle.game.played_at|date:"Y-m-d" }} · {{ puzzle.get_label_display }}</p>
+    <h1>@{{ puzzle.player_profile.chesscom_username }} · Move {{ puzzle.move_number }}</h1>
+    <p class="lede">{{ puzzle.explanation }}</p>
+</section>
+
+<section class="detail-layout">
+    <article class="card">
+        <div class="fen-board">{% board_svg puzzle 460 %}</div>
+    </article>
+    <article class="card">
+        <h2>Review</h2>
+        <p><strong>Played:</strong> {{ puzzle.played_move }}</p>
+        <div class="reveal-block" data-reveal-block>
+            <p><strong>Best:</strong> <span class="hidden-best-move" data-reveal-target>Hidden</span></p>
+            <button
+                type="button"
+                class="button reveal-button"
+                data-reveal-button
+                data-reveal-text="{{ puzzle.best_move|escape }}"
+                data-hidden-text="Hidden"
+                data-state="hidden"
+            >
+                Reveal best move
+            </button>
+        </div>
+        <p><strong>Eval before:</strong> {{ puzzle.eval_before }}</p>
+        <p><strong>Eval after:</strong> {{ puzzle.eval_after }}</p>
+        <p><strong>Drop:</strong> {{ puzzle.drop_cp }} cp</p>
+        <p><strong>Game:</strong> <a href="{{ puzzle.game.url }}" target="_blank" rel="noreferrer">Open original game</a></p>
+        <p><strong>Analysis:</strong> <a href="https://www.chess.com/analysis?fen={{ puzzle.fen|urlencode }}" target="_blank" rel="noreferrer">Open on Chess.com Analysis</a></p>
+        <p><a class="button" href="{% url 'mistakes:puzzle-list' puzzle.player_profile.slug %}">Back to puzzle list</a></p>
+        {% if previous_puzzle %}
+        <p><a class="button" href="{{ previous_puzzle.get_absolute_url }}">Previous position</a></p>
+        {% endif %}
+        {% if next_puzzle %}
+        <p><a class="button" href="{{ next_puzzle.get_absolute_url }}">Next position</a></p>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

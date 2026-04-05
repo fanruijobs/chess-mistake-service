@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Players | Chess Mistake Service{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">Multi-user blunder review</p>
+    <h1>Player profiles</h1>
+    <p class="lede">Jump from the landing page into each player's turning-point archive by year and month.</p>
+</section>
+
+<section class="card-grid">
+    {% for player in players %}
+    <article class="card">
+        <h2><a href="{% url 'mistakes:puzzle-list' player.slug %}">@{{ player.chesscom_username }}</a></h2>
+        <p>{{ player.puzzle_count }} saved turning points</p>
+        {% if player.archive_links %}
+        <div class="archive-chip-list">
+            {% for archive in player.archive_links %}
+            <a class="archive-chip" href="{% url 'mistakes:puzzle-archive' player.slug archive.year archive.month %}">
+                {{ archive.year }}-{{ archive.month|stringformat:"02d" }}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </article>
+    {% empty %}
+    <article class="card">
+        <h2>No players yet</h2>
+        <p>Create a player profile in Django admin, then run the sync command.</p>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

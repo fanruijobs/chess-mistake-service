@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Chess Mistake Service{% endblock %}</title>
+    <link rel="stylesheet" href="/static/mistakes/styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="shell">
+            <a class="brand" href="{% url 'mistakes:player-list' %}">Chess Mistake Service</a>
+        </div>
+    </header>
+    <main class="shell">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="/static/mistakes/board.js"></script>
+</body>
+</html>

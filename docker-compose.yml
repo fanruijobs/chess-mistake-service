@@ -1,0 +1,30 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chess-mistake-service
+    command: >
+      sh -c "python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      gunicorn config.wsgi:application
+      --bind 0.0.0.0:8000
+      --workers 2
+      --timeout 120"
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_DEBUG: "0"
+      DJANGO_ALLOWED_HOSTS: "${DJANGO_ALLOWED_HOSTS:-*}"
+      DJANGO_TIME_ZONE: "${DJANGO_TIME_ZONE:-UTC}"
+      STOCKFISH_PATH: "/usr/games/stockfish"
+      CHESSCOM_USER_AGENT: "${CHESSCOM_USER_AGENT:-chess-mistake-service/1.0}"
+      SYNC_MONTH_LOOKBACK: "${SYNC_MONTH_LOOKBACK:-3}"
+      CHESS_ANALYSIS_DEPTH: "${CHESS_ANALYSIS_DEPTH:-12}"
+      TURNING_POINT_THRESHOLD: "${TURNING_POINT_THRESHOLD:-1.8}"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+    restart: unless-stopped
+    mem_limit: 1g
+    storage_opt:
+      size: "20G"

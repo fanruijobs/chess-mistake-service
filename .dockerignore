@@ -1,0 +1,13 @@
+.git
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+db.sqlite3
+db.sqlite3-journal
+staticfiles
+media
+dev-files
+vendor/stockfish

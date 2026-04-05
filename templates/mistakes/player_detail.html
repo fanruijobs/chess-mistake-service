@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}@{{ player.chesscom_username }} | Chess Mistake Service{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">@{{ player.chesscom_username }}</p>
+    <h1>@{{ player.chesscom_username }}</h1>
+    <p class="lede">{{ loss_count }} losses tracked across {{ game_count }} rapid games.</p>
+    <div class="actions">
+        <a class="button" href="{% url 'mistakes:puzzle-list' player.slug %}">Open all puzzles</a>
+    </div>
+    {% if archive_links %}
+    <div class="archive-chip-list">
+        {% for archive in archive_links %}
+        <a class="archive-chip" href="{% url 'mistakes:puzzle-archive' player.slug archive.archive_year archive.archive_month %}">
+            {{ archive.archive_year }}-{{ archive.archive_month|stringformat:"02d" }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<section class="card-grid">
+    {% for puzzle in recent_puzzles %}
+    <article class="card">
+        <p class="meta">{{ puzzle.game.played_at|date:"Y-m-d" }} · {{ puzzle.get_label_display }}</p>
+        <h2><a href="{{ puzzle.get_absolute_url }}">Move {{ puzzle.move_number }}</a></h2>
+        <p>{{ puzzle.explanation }}</p>
+    </article>
+    {% empty %}
+    <article class="card">
+        <h2>No puzzles yet</h2>
+        <p>Run game sync and engine analysis to generate turning points.</p>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}
