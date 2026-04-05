@@ -33,6 +33,8 @@
         <p><strong>Eval before:</strong> {{ puzzle.eval_before }}</p>
         <p><strong>Eval after:</strong> {{ puzzle.eval_after }}</p>
         <p><strong>Drop:</strong> {{ puzzle.drop_cp }} cp</p>
+        <p><strong>White:</strong> {{ puzzle.game.white_username }}</p>
+        <p><strong>Black:</strong> {{ puzzle.game.black_username }}</p>
         <p><strong>Game:</strong> <a href="{{ puzzle.game.url }}" target="_blank" rel="noreferrer">Open original game</a></p>
         <p><strong>Analysis:</strong> <a href="https://www.chess.com/analysis?fen={{ puzzle.fen|urlencode }}" target="_blank" rel="noreferrer">Open on Chess.com Analysis</a></p>
         <p><a class="button" href="{% url 'mistakes:puzzle-list' puzzle.player_profile.slug %}">Back to puzzle list</a></p>

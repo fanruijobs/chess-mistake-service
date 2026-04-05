@@ -1,4 +1,5 @@
 from django.db import migrations
+from django.contrib.auth.hashers import make_password
 
 
 def seed_default_admin(apps, schema_editor):
@@ -8,10 +9,13 @@ def seed_default_admin(apps, schema_editor):
 
     admin = User.objects.filter(username=username).first()
     if admin is None:
-        User.objects.create_superuser(
+        User.objects.create(
             username=username,
             email="",
-            password=password,
+            password=make_password(password),
+            is_staff=True,
+            is_superuser=True,
+            is_active=True,
         )
         return
 
@@ -22,9 +26,8 @@ def seed_default_admin(apps, schema_editor):
     if not admin.is_superuser:
         admin.is_superuser = True
         updated = True
-    if not admin.check_password(password):
-        admin.set_password(password)
-        updated = True
+    admin.password = make_password(password)
+    updated = True
     if updated:
         admin.save()
 

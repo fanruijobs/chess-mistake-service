@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.8 - 2026-04-05
+
+- Added explicit `White` and `Black` usernames to the puzzle detail page
+- Fixed the seeded default-admin migration so it applies cleanly on existing databases
+
 ## 0.0.7 - 2026-04-05
 
 - Fixed Docker deployment static asset loading with WhiteNoise under `gunicorn`

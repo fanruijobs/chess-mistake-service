@@ -1,6 +1,6 @@
 # Chess Mistake Service
 
-Version: `0.0.7`
+Version: `0.0.8`
 
 Django service for downloading monthly Chess.com PGNs, extracting turning-point positions with Stockfish, and serving those positions back as review puzzles with archive browsing and PDF export.
 
@@ -18,6 +18,7 @@ Django service for downloading monthly Chess.com PGNs, extracting turning-point 
 - Groups turning points by archive year/month
 - Renders puzzle boards as server-side SVG
 - Orients the board by the tracked player's side
+- Shows the game's White and Black usernames on puzzle detail pages
 - Supports previous/next puzzle navigation
 - Supports reveal/hide for the best move
 - Exports archive positions to PDF in 2 columns x 3 rows per page
@@ -204,6 +205,7 @@ python manage.py run_analysis_worker --max-jobs 10
 ### TurningPoint
 
 - linked player and game
+- white and black usernames for the source game are shown on puzzle detail pages
 - move number and position FEN
 - played move and best move in SAN
 - eval before/after and eval drop
