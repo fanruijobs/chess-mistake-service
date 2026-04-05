@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Case, Count, IntegerField, Value, When
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.text import slugify
@@ -35,14 +35,22 @@ class PlayerListView(ListView):
     def get_queryset(self):
         return (
             PlayerProfile.objects.filter(is_active=True)
-            .annotate(puzzle_count=Count("turning_points"))
+            .annotate(
+                puzzle_count=Case(
+                    When(role=PlayerProfile.ROLE_OTHERS, then=Value(0)),
+                    default=Count("turning_points"),
+                    output_field=IntegerField(),
+                )
+            )
             .order_by("name")
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         archive_rows = (
-            TurningPoint.objects.filter(player_profile__in=context["players"])
+            TurningPoint.objects.filter(player_profile__in=context["players"]).exclude(
+                player_profile__role=PlayerProfile.ROLE_OTHERS
+            )
             .values("player_profile_id", "archive_year", "archive_month")
             .order_by("player_profile_id", "-archive_year", "-archive_month")
             .distinct()

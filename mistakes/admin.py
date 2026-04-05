@@ -59,6 +59,12 @@ class PlayerProfileAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ("name", "chesscom_username")
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if "role__exact" in request.GET:
+            return queryset
+        return queryset.filter(role__in=[PlayerProfile.ROLE_FAMILY, PlayerProfile.ROLE_FRIEND])
+
     @admin.action(description="Download archived rapid games for current month")
     def download_archived_games_for_current_month(self, request, queryset):
         service = ChessComSyncService()

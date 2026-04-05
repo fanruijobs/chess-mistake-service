@@ -7,6 +7,7 @@ import chess.engine
 import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.http import QueryDict
 from django.core.management import call_command
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
@@ -653,6 +654,46 @@ class ViewTests(TestCase):
         self.assertNotContains(response, "Daughter")
         self.assertNotContains(response, "Adult")
 
+    def test_player_list_does_not_count_turning_points_for_others_role(self):
+        other_player = PlayerProfile.objects.create(
+            name="someoneelse",
+            slug="someoneelse",
+            chesscom_username="someoneelse",
+            role=PlayerProfile.ROLE_OTHERS,
+            is_active=True,
+        )
+        other_game = Game.objects.create(
+            player_profile=other_player,
+            external_game_id="other-role-game",
+            url="https://www.chess.com/game/live/7001",
+            played_at=timezone.now(),
+            white_username="someoneelse",
+            black_username="other",
+            owner_color=Game.COLOR_WHITE,
+            result=Game.RESULT_LOSS,
+            time_class="rapid",
+            pgn=SAMPLE_PGN.replace("fanrui89", "someoneelse"),
+        )
+        TurningPoint.objects.create(
+            player_profile=other_player,
+            game=other_game,
+            move_number=2,
+            fen=chess.Board().fen(),
+            played_move="Nf3",
+            best_move="d4",
+            eval_before=0.4,
+            eval_after=-1.8,
+            drop_cp=220,
+            label=TurningPoint.LABEL_MISTAKE,
+            explanation="Should not count on landing page",
+        )
+
+        response = self.client.get(reverse("mistakes:player-list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "@someoneelse")
+        self.assertContains(response, "0 saved turning points")
+
     def test_player_detail_redirects_to_puzzle_list(self):
         response = self.client.get(reverse("mistakes:player-detail", kwargs={"slug": self.player.slug}))
         self.assertEqual(response.status_code, 302)
@@ -1089,6 +1130,49 @@ class AdminConfigTests(TestCase):
     def test_player_profile_admin_has_role_filter(self):
         admin = PlayerProfileAdmin(PlayerProfile, AdminSite())
         self.assertIn("role", admin.list_filter)
+
+    def test_player_profile_admin_defaults_to_family_and_friend(self):
+        PlayerProfile.objects.create(
+            name="frienduser",
+            slug="frienduser",
+            chesscom_username="frienduser",
+            role=PlayerProfile.ROLE_FRIEND,
+            is_active=True,
+        )
+        PlayerProfile.objects.create(
+            name="otheruser",
+            slug="otheruser",
+            chesscom_username="otheruser",
+            role=PlayerProfile.ROLE_OTHERS,
+            is_active=True,
+        )
+
+        admin = PlayerProfileAdmin(PlayerProfile, AdminSite())
+        request = RequestFactory().get("/admin/mistakes/playerprofile/")
+
+        usernames = list(admin.get_queryset(request).values_list("chesscom_username", flat=True))
+
+        self.assertIn("fanrui89", usernames)
+        self.assertIn("fanguoguo123", usernames)
+        self.assertIn("frienduser", usernames)
+        self.assertNotIn("otheruser", usernames)
+
+    def test_player_profile_admin_role_filter_can_show_others(self):
+        PlayerProfile.objects.create(
+            name="otheruser",
+            slug="otheruser",
+            chesscom_username="otheruser",
+            role=PlayerProfile.ROLE_OTHERS,
+            is_active=True,
+        )
+
+        admin = PlayerProfileAdmin(PlayerProfile, AdminSite())
+        request = RequestFactory().get("/admin/mistakes/playerprofile/")
+        request.GET = QueryDict("role__exact=others")
+
+        usernames = list(admin.get_queryset(request).values_list("chesscom_username", flat=True))
+
+        self.assertIn("otheruser", usernames)
 
     def test_game_admin_has_player_profile_filter(self):
         admin = GameAdmin(Game, AdminSite())

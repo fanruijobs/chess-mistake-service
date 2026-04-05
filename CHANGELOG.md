@@ -6,6 +6,8 @@
 - Added `collectstatic --noinput` to container startup so CSS and JavaScript are published on boot
 - Added `whitenoise` to Python dependencies and enabled compressed manifest static file storage
 - Added native Cairo build dependencies to the Docker image so image builds succeed with the PDF/static rendering stack
+- Excluded role `others` from landing-page turning-point counts and archive chips
+- Changed the `PlayerProfile` admin changelist to show only `family` and `friend` by default, while keeping the role filter available for `others`
 
 ## 0.0.6 - 2026-04-05
 

@@ -43,6 +43,7 @@ Django service for downloading monthly Chess.com PGNs, extracting turning-point 
 
 ### PlayerProfile admin
 
+- default list view shows only `family` and `friend`
 - filter by `role`
 - filter by `is_active`
 - action: download archived rapid games for current month
@@ -185,6 +186,7 @@ python manage.py run_analysis_worker --max-jobs 10
 - Chess.com username
 - role: `family`, `friend`, `others`
 - active/inactive flag
+- landing-page turning-point counts are shown only for `family` and `friend`
 
 ### Game
 
